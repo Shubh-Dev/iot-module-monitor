@@ -1,0 +1,13 @@
+image: gitpod/workspace-full:latest  # Use the full workspace image, which includes PHP, Node.js, and other development tools
+
+tasks:
+  - init: |
+      cp .env.example .env  # Copy the .env file if it doesn't exist
+      composer install       # Install PHP dependencies
+      npm install            # Install Node.js dependencies (if you use frontend tools like Laravel Mix)
+      php artisan key:generate  # Generate the app key
+  - command: |
+      php artisan serve --host=0.0.0.0  # Start Laravel's local development server on Gitpod
+ports:
+  - port: 8000
+    onOpen: open-preview  # Open the Laravel server in a Gitpod preview tab
