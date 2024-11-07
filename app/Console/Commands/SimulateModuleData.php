@@ -33,11 +33,10 @@ class SimulateModuleData extends Command
             Module::create([
                 'name' => $faker->word,  // Random module name
                 'type' => $faker->word,
+                'measured_value' => $faker->randomFloat(2, 10, 100),
+                'operating_time' => $faker->numberBetween(1, 100), 
+                'data_sent_count' => $faker->numberBetween(1, 1000),
                 'status' => $faker->randomElement(['active', 'inactive', 'malfunction']),
-                'description' => $faker->sentence,  // Random description
-                'current_value' => $faker->randomFloat(2, 10, 100),  // Random measured value (e.g., temperature)
-                'operating_time' => $faker->numberBetween(1, 100),  // Random operating time
-                'data_sent' => $faker->numberBetween(1, 1000),  // Random data sent count
             ]);
         }
 
