@@ -47,4 +47,11 @@
         </tbody>
     </table>
 </div>
+<script>
+    // Passing PHP data to JavaScript
+    var modules = @json($modules);
+
+    // Console log the modules data
+    console.log(modules);
+</script>
 @endsection
