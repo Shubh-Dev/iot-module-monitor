@@ -17,7 +17,7 @@ class ModuleController extends Controller
 
     public function history($id)
     {
-        $history = ModuleHistory::Where('module_id', $id)->get();
-        return view('modules.history', compact('history'));
+        $histories = ModuleHistory::Where('module_id', $id)->get();
+        return view('modules.history', compact('histories'));
     }
 }
