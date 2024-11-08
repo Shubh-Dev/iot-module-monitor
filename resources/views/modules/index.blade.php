@@ -67,6 +67,9 @@
             @endforeach
         </tbody>
     </table>
+
+    <canvas id="moduleChart" width="400" height="200"></canvas>
+
 </div>
 
 <!-- DataTables Initialization Script -->
@@ -86,7 +89,8 @@
         });
     });
 </script>
-<script>
+
+{{-- <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Event listener for history buttons
         document.querySelectorAll('.fetch-history').forEach(button => {
@@ -118,6 +122,43 @@
             });
         });
     });
+    </script> --}}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prepare data for the chart
+            const labels = @json($history->pluck('created_at')->map(fn($date) => $date->format('Y-m-d H:i:s')));
+            const dataValues = @json($history->pluck('measured_value'));
+    
+            const ctx = document.getElementById('moduleChart').getContext('2d');
+            const moduleChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Measured Value Over Time',
+                        data: dataValues,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        });
     </script>
     
 
