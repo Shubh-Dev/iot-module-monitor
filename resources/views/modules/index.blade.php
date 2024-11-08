@@ -6,7 +6,7 @@
     <h1 class="display-5 mb-4 text-center">Module Status</h1>
 
     <!-- Module Status Table -->
-    <table class="table table-hover table-bordered table-striped">
+    <table id="moduleStatusTable" class="table table-hover table-bordered table-striped">
         <thead class="table-dark">
             <tr>
                 <th scope="col">Name</th>
@@ -15,17 +15,27 @@
                 <th scope="col">Status</th>
                 <th scope="col">Operating Time</th>
                 <th scope="col">Data Sent Count</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach($modules as $module)
-                <tr class="{{ $module->status == 'Active' ? 'table-success' : 'table-danger' }}">
+                <tr class="
+                    @if($module->status == 'Active') 
+                        table-success
+                    @elseif($module->status == 'Inactive')
+                        table-warning
+                    @elseif($module->status == 'Malfunction')
+                        table-danger
+                    @endif
+                ">
                     <td>{{ $module->name }}</td>
                     <td>{{ $module->type }}</td>
                     <td>{{ $module->measured_value }}</td>
                     <td>{{ $module->status }}</td>
                     <td>{{ $module->operating_time }}</td>
                     <td>{{ $module->data_sent_count }}</td>
+                    <td>History Delete</td>
                 </tr>
             @endforeach
         </tbody>
@@ -33,7 +43,7 @@
 
     <!-- Module History Section -->
     <h2 class="display-6 mt-5 mb-4 text-center">Module History</h2>
-    <table class="table table-hover table-bordered table-striped">
+    <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
         <thead class="table-secondary">
             <tr>
                 <th scope="col">Module Name</th>
@@ -53,10 +63,25 @@
     </table>
 </div>
 
-<!-- Script for Testing Data Output -->
+<!-- DataTables Initialization Script -->
 <script>
-    // Passing PHP data to JavaScript for testing purposes
-    var modules = @json($modules);
-    console.log(modules);
+    $(document).ready(function() {
+        // Initialize DataTables for the two tables
+        $('#moduleStatusTable').DataTable({
+            "paging": true,
+            "searching": true,
+            "pageLength": 10
+        });
+
+        $('#moduleHistoryTable').DataTable({
+            "paging": true,
+            "searching": true,
+            "pageLength": 5
+        });
+    });
 </script>
+
 @endsection
+
+
+
