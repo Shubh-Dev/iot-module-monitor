@@ -1,21 +1,25 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container">
-    <h1>Module Status</h1>
-    <table class="table">
-        <thead>
+<div class="container my-4">
+    <!-- Main Heading -->
+    <h1 class="display-5 mb-4 text-center">Module Status</h1>
+
+    <!-- Module Status Table -->
+    <table class="table table-hover table-bordered table-striped">
+        <thead class="table-dark">
             <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Measured Value</th>
-                <th>Status</th>
-                <th>Operating Time</th>
-                <th>Data Sent Count</th>
+                <th scope="col">Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">Measured Value</th>
+                <th scope="col">Status</th>
+                <th scope="col">Operating Time</th>
+                <th scope="col">Data Sent Count</th>
             </tr>
         </thead>
         <tbody>
             @foreach($modules as $module)
-                <tr>
+                <tr class="{{ $module->status == 'Active' ? 'table-success' : 'table-danger' }}">
                     <td>{{ $module->name }}</td>
                     <td>{{ $module->type }}</td>
                     <td>{{ $module->measured_value }}</td>
@@ -27,13 +31,14 @@
         </tbody>
     </table>
 
-    <h2>Module History</h2>
-    <table class="table">
-        <thead>
+    <!-- Module History Section -->
+    <h2 class="display-6 mt-5 mb-4 text-center">Module History</h2>
+    <table class="table table-hover table-bordered table-striped">
+        <thead class="table-secondary">
             <tr>
-                <th>Module Name</th>
-                <th>Measured Value</th>
-                <th>Timestamp</th>
+                <th scope="col">Module Name</th>
+                <th scope="col">Measured Value</th>
+                <th scope="col">Timestamp</th>
             </tr>
         </thead>
         <tbody>
@@ -47,11 +52,11 @@
         </tbody>
     </table>
 </div>
-<script>
-    // Passing PHP data to JavaScript
-    var modules = @json($modules);
 
-    // Console log the modules data
+<!-- Script for Testing Data Output -->
+<script>
+    // Passing PHP data to JavaScript for testing purposes
+    var modules = @json($modules);
     console.log(modules);
 </script>
 @endsection
