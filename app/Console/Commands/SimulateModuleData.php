@@ -33,7 +33,6 @@ class SimulateModuleData extends Command
 
         // Check if there are any modules to update, and insert initial data if empty
         if (Module::count() == 0) {
-            for ($i = 0; $i < 10; $i++) {
                 Module::create([
                     'name' => $faker->word,
                     'type' => $faker->word,
@@ -42,14 +41,15 @@ class SimulateModuleData extends Command
                     'data_sent_count' => $faker->numberBetween(1, 1000),
                     'status' => $faker->randomElement(['active', 'inactive', 'malfunction']),
                 ]);
-            }
+            
             $this->info("Initial module data created.");
         }
 
         // Run the simulation loop
         while (true) {
+           
+         for($i = 0; $i < 20; $i++) {
             $modules = Module::all();  // Fetch all modules for each iteration
-
             foreach ($modules as $module) {
                 // Backup current data in module_history table
                 ModuleHistory::create([
@@ -71,6 +71,7 @@ class SimulateModuleData extends Command
                 // Save the updated module data
                 $module->save();
             }
+        }
 
             // Log the action to the console
             $this->info('Module data simulated and updated.');

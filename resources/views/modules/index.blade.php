@@ -9,6 +9,7 @@
     <table id="moduleStatusTable" class="table table-hover table-bordered table-striped">
         <thead class="table-dark">
             <tr>
+                <th scope="col">ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Type</th>
                 <th scope="col">Measured Value</th>
@@ -29,6 +30,7 @@
                         table-danger
                     @endif
                 ">
+                    <td>{{ $module->id }}</td>
                     <td>{{ $module->name }}</td>
                     <td>{{ $module->type }}</td>
                     <td>{{ $module->measured_value }}</td>
@@ -46,6 +48,7 @@
     <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
         <thead class="table-secondary">
             <tr>
+                <th scope="col">Module ID</th>
                 <th scope="col">Module Name</th>
                 <th scope="col">Measured Value</th>
                 <th scope="col">Timestamp</th>
@@ -54,6 +57,7 @@
         <tbody>
             @foreach($history as $entry)
                 <tr>
+                    <td>{{ $entry->module_id }}</td>
                     <td>{{ $entry->module->name }}</td>
                     <td>{{ $entry->measured_value }}</td>
                     <td>{{ $entry->created_at }}</td>
@@ -76,7 +80,7 @@
         $('#moduleHistoryTable').DataTable({
             "paging": true,
             "searching": true,
-            "pageLength": 5
+            "pageLength": 10
         });
     });
 </script>
