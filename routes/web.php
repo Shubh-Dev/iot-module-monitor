@@ -8,3 +8,4 @@ Route::get('/', function () {
 });
 
 Route::get('/modules', [ModuleController::class, 'index']);
+Route::get('/history', [ModuleController::class, 'history']);

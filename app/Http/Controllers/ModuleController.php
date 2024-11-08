@@ -10,8 +10,14 @@ class ModuleController extends Controller
     public function index()
     {
         $modules = Module::all();
-        $history = ModuleHistory::orderBy('created_at', 'desc')->take(10)->get();
+        $history = ModuleHistory::orderBy('created_at', 'desc')->take(100)->get();
 
         return view('modules.index', compact('modules', 'history'));
+    }
+
+    public function history($id)
+    {
+        $history = ModuleHistory::Where('module_id', $id)->get();
+        return view('modules.history', compact('history'));
     }
 }
