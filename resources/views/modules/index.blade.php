@@ -37,7 +37,9 @@
                     <td>{{ $module->status }}</td>
                     <td>{{ $module->operating_time }}</td>
                     <td>{{ $module->data_sent_count }}</td>
-                    <td>History Delete</td>
+                    <td>
+                        <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show History</button>
+                    </td>
                 </tr>
             @endforeach
         </tbody>
