@@ -25,13 +25,12 @@ class ModuleController extends Controller
 {
     $histories = ModuleHistory::where('module_id', $id)->orderBy('created_at', 'desc')->get();
 
+    // Check if the request is an AJAX request
     if (request()->ajax()) {
-        return response()->json([
-            'data' => $history
-        ]);
+        return response()->json($histories);
     }
 
     // Otherwise, load the normal view (if needed for other cases)
-    return view('modules.history');
+    return view('modules.history', compact('histories'));
 }
 }

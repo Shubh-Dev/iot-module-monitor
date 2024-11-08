@@ -92,30 +92,29 @@
         document.querySelectorAll('.fetch-history').forEach(button => {
             button.addEventListener('click', function () {
                 const moduleId = this.getAttribute('data-id');
-                console.log('clicked' , moduleId);
-                // // Make AJAX request to fetch history
-                // fetch(`/modules/${moduleId}/history`)
-                //     .then(response => response.json())
-                //     .then(data => {
-                //         // Populate the history modal with data
-                //         let historyTable = document.getElementById('history-table');
-                //         historyTable.innerHTML = ''; // Clear previous data
+                // Make AJAX request to fetch history
+                fetch(`/modules/${moduleId}/history`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Populate the history modal with data
+                        let historyTable = document.getElementById('history-table');
+                        historyTable.innerHTML = ''; // Clear previous data
     
-                //         data.forEach(item => {
-                //             let row = `<tr>
-                //                 <td>${item.measured_value}</td>
-                //                 <td>${item.status}</td>
-                //                 <td>${item.operating_time}</td>
-                //                 <td>${item.data_sent_count}</td>
-                //                 <td>${item.recorded_at}</td>
-                //             </tr>`;
-                //             historyTable.innerHTML += row;
-                //         });
+                        data.forEach(item => {
+                            let row = `<tr>
+                                <td>${item.measured_value}</td>
+                                <td>${item.status}</td>
+                                <td>${item.operating_time}</td>
+                                <td>${item.data_sent_count}</td>
+                                <td>${item.recorded_at}</td>
+                            </tr>`;
+                            historyTable.innerHTML += row;
+                        });
     
-                //         // Show the modal
-                //         document.getElementById('history-modal').style.display = 'block';
-                //     })
-                //     .catch(error => console.error('Error:', error));
+                        // Show the modal
+                        document.getElementById('history-modal').style.display = 'block';
+                    })
+                    .catch(error => console.error('Error:', error));
             });
         });
     });
