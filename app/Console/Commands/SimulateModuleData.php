@@ -80,7 +80,7 @@ class SimulateModuleData extends Command
             $this->info('Module data simulated and updated.');
 
             // Wait for 3 seconds before repeating
-            sleep(3);
+            sleep(2);
         }
     }
 }
