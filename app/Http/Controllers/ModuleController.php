@@ -55,4 +55,30 @@ class ModuleController extends Controller
             return response()->json(['error' => 'Unable to fetch modules data.'], 500);
         }
     }
+
+    public function add()
+    {
+        return view('modules.add');
+    }
+
+    public function create(Request $request)
+    {
+        // validate inputs
+        $validated = $request->validate([
+            'name' => 'required | string | max:225',
+            'type' => 'required | string | max:225',
+            'status' => 'required | string | in:active, inactive, malfunction',
+        ]);
+
+        try {
+
+            // create a module
+            Module::create($validated);
+
+            // redirect with a success message
+            return redirect()->route('modules.index')->with('success', 'Module created successfully');
+        } catch (\Exception $e) {
+            Log::error("Error creating module: " . $e->getMessage());
+        }
+    }
 }
