@@ -11,11 +11,11 @@ class ModuleHistory extends Model
     protected $table = 'module_history';
 
     protected $fillable = [
-        'module_id', 
-        'measured_value', 
-        'status', 
-        'operating_time', 
-        'data_sent_count', 
+        'module_id',
+        'measured_value',
+        'status',
+        'operating_time',
+        'data_sent_count',
         'recorded_at'
     ];
 
