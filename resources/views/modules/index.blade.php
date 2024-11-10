@@ -1,19 +1,24 @@
+<!-- resources/views/modules/index.blade.php -->
 @extends('layouts.app')
 @section('head')
     <style>
         .active {
-            background-color: green;
+            background-color: #17B169 !important;
             color: white;
         }
 
         .malfunction {
-            background-color: red;
+            background-color: #FF5F1F !important;
             color: white;
         }
 
         .inactive {
-            background-color: gray;
+            background-color: #E32636 !important;
             color: white;
+        }
+
+        td {
+            transition: background-color 0.5s ease;
         }
     </style>
 @endsection
@@ -39,40 +44,19 @@
             </thead>
             <tbody>
                 @foreach ($modules as $module)
-                    <td>{{ $module->id }}</td>
-                    <td>{{ $module->name }}</td>
-                    <td>{{ $module->type }}</td>
-                    <td>{{ $module->measured_value }}</td>
-                    <td>{{ $module->status }}</td>
-                    <td>{{ $module->operating_time }}</td>
-                    <td>{{ $module->data_sent_count }}</td>
-                    <td>
-                        <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
-                            History</button>
-                    </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <!-- Module History Section -->
-        <h2 class="display-6 mt-5 mb-4 text-center">Module History</h2>
-        <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
-            <thead class="table-secondary">
-                <tr>
-                    <th scope="col">Module ID</th>
-                    <th scope="col">Module Name</th>
-                    <th scope="col">Measured Value</th>
-                    <th scope="col">Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($history as $entry)
                     <tr>
-                        <td>{{ $entry->module_id }}</td>
-                        <td>{{ $entry->module->name }}</td>
-                        <td>{{ $entry->measured_value }}</td>
-                        <td>{{ $entry->created_at }}</td>
+                        <td>{{ $module->id }}</td>
+                        <td>{{ $module->name }}</td>
+                        <td>{{ $module->type }}</td>
+                        <td>{{ $module->measured_value }}</td>
+                        <td class="{{ strtolower($module->status) }}">
+                            {{ ($module->status) }}</td>
+                        <td>{{ $module->operating_time }}</td>
+                        <td>{{ $module->data_sent_count }}</td>
+                        <td>
+                            <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
+                                History</button>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -90,45 +74,71 @@
                 "paging": true,
                 "searching": true,
                 "pageLength": 10,
-                "rowCallback": function(row, data, dataIndex) {
-                    var status = data[4];
-                    $(row).removeClass('active malfunction inactive');
-                    var statusCell = $(row).find('td').eq(4);
 
-                    if (status == 'active') {
-                        $(statusCell).addClass('active');
-                    } else if (status == 'malfunction') {
-                        $(statusCell).addClass('malfunction');
-                    } else if (status == 'inactive') {
-                        $(statusCell).addClass('inactive');
-                    }
-                }
             });
 
+            let previousData = {};
+
             const refreshModuleData = () => {
-                console.log('Starting AJAX request to fetch module data...');
                 $.ajax({
                     url: '/api/modules',
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        console.log('Data received from API:', data);
                         moduleTable.clear();
 
                         data.forEach(function(module) {
+                            const statusClass = module.status.toLowerCase();
+                            const rowId = `module-${module.id}`;
+                            // Compare current and previous values
+                            const prevMeasuredValue = previousData[rowId]?.measured_value;
+                            const prevOperatingTime = previousData[rowId]?.operating_time;
+                            const prevDataSentCount = previousData[rowId]?.data_sent_count;
                             moduleTable.row.add([
                                 module.id,
                                 module.name,
                                 module.type,
-                                module.measured_value,
-                                module.status,
-                                module.operating_time,
-                                module.data_sent_count,
+                                `<span class="measured-value" data-prev="${prevMeasuredValue || ''}">${module.measured_value}</span>`,
+                                `<td class="${statusClass}">${module.status}</td>`,
+                                `<span class="operating-time" data-prev="${prevOperatingTime || ''}">${module.operating_time}</span>`,
+                                `<span class="data-sent-count" data-prev="${prevDataSentCount || ''}">${module.data_sent_count}</span>`,
                                 `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
                             ]);
+                            previousData[rowId] = {
+                                measured_value: module.measured_value,
+                                operating_time: module.operating_time,
+                                data_sent_count: module.data_sent_count,
+                            };
                         });
                         moduleTable.draw(false);
-                        console.log('Table updated with new data.');
+                        // Apply status classes after the table is redrawn
+                        $('#moduleStatusTable tbody tr').each(function() {
+                            const statusText = $(this).find('td:nth-child(5)').text()
+                                .toLowerCase();
+                            $(this).find('td:nth-child(5)').removeClass(
+                                'active inactive malfunction');
+                            if (statusText === 'active') {
+                                $(this).find('td:nth-child(5)').addClass('active');
+                            } else if (statusText === 'inactive') {
+                                $(this).find('td:nth-child(5)').addClass('inactive');
+                            } else if (statusText === 'malfunction') {
+                                $(this).find('td:nth-child(5)').addClass('malfunction');
+                            }
+                        });
+
+                        $('#moduleStatusTable tbody tr').each(function() {
+                            const $row = $(this);
+
+                            // Highlight measured value changes
+                            highlightChange($row.find('.measured-value'));
+                            // Highlight operating time changes
+                            highlightChange($row.find('.operating-time'));
+                            // Highlight data sent count changes
+                            highlightChange($row.find('.data-sent-count'));
+                        });
+
+                        console.log('Table updated with new data and status classes applied.');
+
                     },
                     error: function(error) {
                         console.error('Error fetching module data:', error);
@@ -137,49 +147,29 @@
             }
 
             setInterval(refreshModuleData, 3000);
-
-            $('#moduleHistoryTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "pageLength": 10
-            });
         });
+
+        // Helper function to highlight changes
+        const highlightChange = ($cell) => {
+            const newValue = $cell.text();
+            const prevValue = $cell.attr('data-prev');
+
+            // Check if the value has changed
+            if (newValue !== prevValue) {
+                // Temporarily change the background color
+                $cell.css('background-color', '#ffeb3b'); // Yellow color
+
+                // Smoothly transition back to the original background color
+                setTimeout(() => {
+                    $cell.css('transition', 'background-color 1s');
+                    $cell.css('background-color', '');
+                }, 500);
+
+                // Update the previous value attribute
+                $cell.attr('data-prev', newValue);
+            }
+        };
     </script>
-
-    {{-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Event listener for history buttons
-        document.querySelectorAll('.fetch-history').forEach(button => {
-            button.addEventListener('click', function () {
-                const moduleId = this.getAttribute('data-id');
-                // Make AJAX request to fetch history
-                fetch(`/modules/${moduleId}/history`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Populate the history modal with data
-                        let historyTable = document.getElementById('history-table');
-                        historyTable.innerHTML = ''; // Clear previous data
-
-                        data.forEach(item => {
-                            let row = `<tr>
-                                <td>${item.measured_value}</td>
-                                <td>${item.status}</td>
-                                <td>${item.operating_time}</td>
-                                <td>${item.data_sent_count}</td>
-                                <td>${item.recorded_at}</td>
-                            </tr>`;
-                            historyTable.innerHTML += row;
-                        });
-
-                        // Show the modal
-                        document.getElementById('history-modal').style.display = 'block';
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-    });
-    </script> --}}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Prepare data for the chart

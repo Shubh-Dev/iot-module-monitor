@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\ModuleHistory;
 use Illuminate\Support\Facades\Log;
 use Faker\Factory as Faker;
+use Flasher\Toastr\Prime\ToastrFactory;
 use Illuminate\Http\Request;
 
 
@@ -30,11 +31,12 @@ class ModuleController extends Controller
     //     return view('modules.history', compact('histories'));
     // }
 
-    public function history($id)
+    public function history($moduleId)
     {
         try {
-            $histories = ModuleHistory::where('module_id', $id)->orderBy('created_at', 'desc')->get();
-            return view('modules.history', compact('histories'));
+            $module = Module::findOrFail($moduleId);
+            $history = $module->moduleHistory()->orderBy('recorded_at', 'desc')->get();
+            return view('modules.history', compact('module', 'history'));
         } catch (\Exception $e) {
             Log::error('Error fetching modules data for API: ' . $e->getMessage());
             return response()->json(['error' => 'Unable to fetch modules data.'], 500);
@@ -84,7 +86,7 @@ class ModuleController extends Controller
 
             // create a module
             Module::create($moduleData);
-
+            toastr()->success('Module created successfully!');
             // redirect with a success message
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
