@@ -72,7 +72,7 @@
             </tbody>
         </table>
 
-        <canvas id="moduleChart" width="400" height="200"></canvas>
+        {{-- <canvas id="moduleChart" width="400" height="200"></canvas> --}}
 
     </div>
 
@@ -177,7 +177,7 @@
             }
         };
     </script>
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Prepare data for the chart
             const labels = @json($history->pluck('created_at')->map(fn($date) => $date->format('Y-m-d H:i:s')));
@@ -212,7 +212,7 @@
                 }
             });
         });
-    </script>
+    </script> --}}
     <script>
         // delete request handler
         $(document).on('click', '.btn-delete', function(e) {
