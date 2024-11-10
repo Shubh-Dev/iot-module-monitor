@@ -3,17 +3,17 @@
 @section('head')
     <style>
         .active {
-            background-color: #28a745 !important;
+            background-color: #17B169 !important;
             color: white;
         }
 
         .malfunction {
-            background-color: #dc3545 !important;
+            background-color: #FF5F1F !important;
             color: white;
         }
 
         .inactive {
-            background-color: #6c757d !important;
+            background-color: #E32636 !important;
             color: white;
         }
     </style>
@@ -90,14 +90,30 @@
                                 module.name,
                                 module.type,
                                 module.measured_value,
-                                `<td class="${statusClass}">${module.status}</td>`,
+                                module.status,
                                 module.operating_time,
                                 module.data_sent_count,
                                 `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
                             ]);
                         });
                         moduleTable.draw(false);
-                        console.log('Table updated with new data.');
+                        // Apply status classes after the table is redrawn
+                        $('#moduleStatusTable tbody tr').each(function() {
+                            const statusText = $(this).find('td:nth-child(5)').text()
+                                .toLowerCase();
+                            $(this).find('td:nth-child(5)').removeClass(
+                                'active inactive malfunction');
+                            if (statusText === 'active') {
+                                $(this).find('td:nth-child(5)').addClass('active');
+                            } else if (statusText === 'inactive') {
+                                $(this).find('td:nth-child(5)').addClass('inactive');
+                            } else if (statusText === 'malfunction') {
+                                $(this).find('td:nth-child(5)').addClass('malfunction');
+                            }
+                        });
+
+                        console.log('Table updated with new data and status classes applied.');
+
                     },
                     error: function(error) {
                         console.error('Error fetching module data:', error);
