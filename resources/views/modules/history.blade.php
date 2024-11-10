@@ -5,6 +5,10 @@
     <div class="container my-4">
         <h1 class="display-5 mb-4 text-center">History for Module: {{ $module->name }}</h1>
 
+        {{-- history chart  --}}
+        <canvas id="moduleChart" width="400" height="200"></canvas>
+
+
         <!-- Module History Table -->
         <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
             <thead class="table-dark">
@@ -39,6 +43,42 @@
                 "order": [
                     [3, "desc"]
                 ] // Order by the Timestamp column (4th column) in descending order
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prepare data for the chart
+            const labels = @json($history->pluck('created_at')->map(fn($date) => $date->format('Y-m-d H:i:s')));
+            const dataValues = @json($history->pluck('measured_value'));
+
+            const ctx = document.getElementById('moduleChart').getContext('2d');
+            const moduleChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Measured Value Over Time',
+                        data: dataValues,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
             });
         });
     </script>
