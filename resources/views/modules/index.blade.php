@@ -20,17 +20,25 @@
         td {
             transition: background-color 0.5s ease;
         }
+
+        .dataTables_filter {
+            margin-bottom: 1rem;
+        }
     </style>
 @endsection
 
 @section('content')
-    <div class="container my-4">
-        <!-- Main Heading -->
-        <h1 class="display-5 mb-4 text-center">Module Status</h1>
+    <div class="container my-5">
+
+        <!-- Headline and add button -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h3 mb-0">Module Status</h2>
+            <a href="modules/add" class="btn btn-primary btn-sm">ADD MODULE</a>
+        </div>
 
         <!-- Module Status Table -->
-        <table id="moduleStatusTable" class="table table-hover table-bordered table-striped">
-            <thead class="table-dark">
+        <table id="moduleStatusTable" class="table table-hover table-bordered table-striped ">
+            <thead class="table-dark mt-5">
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Name</th>
@@ -50,12 +58,13 @@
                         <td>{{ $module->type }}</td>
                         <td>{{ $module->measured_value }}</td>
                         <td class="{{ strtolower($module->status) }}">
-                            {{ ($module->status) }}</td>
+                            {{ $module->status }}</td>
                         <td>{{ $module->operating_time }}</td>
                         <td>{{ $module->data_sent_count }}</td>
                         <td>
-                            <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
-                                History</button>
+                            <a href="#" class="btn btn-info btn-sm">Details</a>
+                            <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+                            <button class="btn btn-success btn-sm dynamic-btn">Start</button>
                         </td>
                     </tr>
                 @endforeach
@@ -66,10 +75,9 @@
 
     </div>
 
-    <!-- DataTables Initialization Script -->
+    <!-- DataTables Initialization -->
     <script>
         $(document).ready(function() {
-            // Initialize DataTables for the two tables
             let moduleTable = $('#moduleStatusTable').DataTable({
                 "paging": true,
                 "searching": true,
@@ -79,6 +87,7 @@
 
             let previousData = {};
 
+            // fetch updated data and update ui
             const refreshModuleData = () => {
                 $.ajax({
                     url: '/api/modules',
@@ -129,11 +138,9 @@
                         $('#moduleStatusTable tbody tr').each(function() {
                             const $row = $(this);
 
-                            // Highlight measured value changes
+                            // Highlight changed values
                             highlightChange($row.find('.measured-value'));
-                            // Highlight operating time changes
                             highlightChange($row.find('.operating-time'));
-                            // Highlight data sent count changes
                             highlightChange($row.find('.data-sent-count'));
                         });
 
@@ -146,7 +153,7 @@
                 });
             }
 
-            setInterval(refreshModuleData, 3000);
+            // setInterval(refreshModuleData, 3000);
         });
 
         // Helper function to highlight changes
@@ -154,12 +161,11 @@
             const newValue = $cell.text();
             const prevValue = $cell.attr('data-prev');
 
-            // Check if the value has changed
             if (newValue !== prevValue) {
                 // Temporarily change the background color
-                $cell.css('background-color', '#ffeb3b'); // Yellow color
+                $cell.css('background-color', '#ffeb3b');
 
-                // Smoothly transition back to the original background color
+                // Smoothl transition to the original color
                 setTimeout(() => {
                     $cell.css('transition', 'background-color 1s');
                     $cell.css('background-color', '');
@@ -204,6 +210,27 @@
                     }
                 }
             });
+        });
+    </script>
+    <script>
+        // delete request handler
+        $(document).on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            const moduleId = $(this).data('id');
+
+            if (confirm('Are you sure you want to delete this module?')) {
+                $.ajax({
+                    url: `/modules/delete/${moduleId}`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert(response.success);
+                        $('#moduleStatusTable').DataTable().ajax.reload(); // Reload the table
+                    },
+                    error: function(error) {
+                        alert('Error deleting module');
+                    }
+                });
+            }
         });
     </script>
 @endsection

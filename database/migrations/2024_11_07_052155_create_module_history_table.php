@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('module_history', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('module_id')->constrained('modules');     
+            $table->foreignId('module_id')
+                ->constrained('modules')
+                ->onDelete('cascade');
             $table->float('measured_value');
             $table->string('status');
             $table->integer('operating_time');
             $table->integer('data_sent_count');
-            $table->timestamp('recorded_at')->default(now()); 
+            $table->timestamp('recorded_at')->default(now());
             $table->timestamps();
         });
     }

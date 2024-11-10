@@ -24,7 +24,6 @@ class Module extends Model
     // one to many relationship with ModuleHistory
     public function moduleHistory()
     {
-        return $this->hasMany(ModuleHistory::class);
+        return $this->hasMany(ModuleHistory::class)->cascadeOnDelete();
     }
-
 }

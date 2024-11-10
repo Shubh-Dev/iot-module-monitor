@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Module;
 use App\Models\ModuleHistory;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
-use Flasher\Toastr\Prime\ToastrFactory;
 use Illuminate\Http\Request;
 
 
@@ -25,11 +25,6 @@ class ModuleController extends Controller
         }
     }
 
-    // public function history($id)
-    // {
-    //     $histories = ModuleHistory::Where('module_id', $id)->get();
-    //     return view('modules.history', compact('histories'));
-    // }
 
     public function history($moduleId)
     {
@@ -83,14 +78,43 @@ class ModuleController extends Controller
         ]);
 
         try {
-
             // create a module
             Module::create($moduleData);
-            toastr()->success('Module created successfully!');
             // redirect with a success message
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
             Log::error("Error creating module: " . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        $module = Module::findOrFail($id);
+
+        try {
+            $module->delete();
+            Log::error("Module with id: " . $id . "Deleted");
+            return response()->json(['success' => 'Module deleted successfully']);
+        } catch (\Exception $e) {
+            Log::error("Cannot Delete Module: " . $e->getMessage());
+        }
+    }
+
+    // delete from both the tables - useful in development
+    public function clearDatabase()
+    {
+        try {
+            // Begin a transaction to ensure both tables are cleared atomically
+            DB::beginTransaction();
+            DB::table('module_history')->truncate();
+            DB::table('modules')->truncate();
+            DB::commit();
+
+            return response()->json(['success' => 'Database cleared successfully']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error("Error clearing database: " . $e->getMessage());
+            return response()->json(['error' => 'Failed to clear the database'], 500);
         }
     }
 }

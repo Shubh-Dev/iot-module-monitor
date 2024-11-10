@@ -17,5 +17,14 @@ Route::get('/modules/{id}/history', [ModuleController::class, 'history'])->name(
 Route::get('/modules/add', [ModuleController::class, 'add'])->name('modules.add');
 Route::post('/modules', [ModuleController::class, 'create'])->name('modules.create');
 
+// Delete a module
+Route::delete('/modules/delete/{id}', [ModuleController::class, 'destroy'])->name('modules.delete');
+
+
 // API route to fetch modules data
 Route::get('/api/modules', [ApiModuleController::class, 'getModuleData']);
+
+
+
+// Only for development and testing
+Route::delete('/clear-database', [ModuleController::class, 'clearDatabase']);
