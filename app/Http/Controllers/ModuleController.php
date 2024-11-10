@@ -30,7 +30,14 @@ class ModuleController extends Controller
     {
         try {
             $module = Module::findOrFail($moduleId);
+            // Check if no history data is found
             $history = $module->moduleHistory()->orderBy('recorded_at', 'desc')->get();
+
+            if ($history->isEmpty()) {
+                // Return a custom "no data" view if no history records are found
+                return view('modules.no-data', compact('module'));
+            }
+
             return view('modules.history', compact('module', 'history'));
         } catch (\Exception $e) {
             Log::error('Error fetching modules data for API: ' . $e->getMessage());
@@ -77,13 +84,28 @@ class ModuleController extends Controller
             'data_sent_count' => $faker->numberBetween(1, 1000),
         ]);
 
+        DB::beginTransaction();
+
         try {
             // create a module
-            Module::create($moduleData);
+            $module = Module::create($moduleData);
+
+            ModuleHistory::create([
+                'module_id' => $module->id,  // The foreign key to the modules table
+                'measured_value' => $module->measured_value,
+                'status' => $module->status,
+                'operating_time' => $module->operating_time,
+                'data_sent_count' => $module->data_sent_count,
+                'recorded_at' => now(),  // Timestamp of creation
+            ]);
+
+            DB::commit();  // Commit the transaction
             // redirect with a success message
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
+            DB::rollback();
             Log::error("Error creating module: " . $e->getMessage());
+            return redirect()->route('modules.index')->with('error', 'Failed to create module');
         }
     }
 

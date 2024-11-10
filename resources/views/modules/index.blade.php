@@ -62,7 +62,8 @@
                         <td>{{ $module->operating_time }}</td>
                         <td>{{ $module->data_sent_count }}</td>
                         <td>
-                            <a href="#" class="btn btn-info btn-sm">Details</a>
+                            <a href="{{ route('modules.history', ['id' => $module->id]) }}"
+                                class="btn btn-info btn-sm">Details</a>
                             <button class="btn btn-danger btn-sm btn-delete">Delete</button>
                             <button class="btn btn-success btn-sm dynamic-btn">Start</button>
                         </td>
