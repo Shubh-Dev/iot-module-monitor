@@ -1,4 +1,22 @@
 @extends('layouts.app')
+@section('head')
+    <style>
+        .active {
+            background-color: green;
+            color: white;
+        }
+
+        .malfunction {
+            background-color: red;
+            color: white;
+        }
+
+        .inactive {
+            background-color: gray;
+            color: white;
+        }
+    </style>
+@endsection
 
 @section('content')
     <div class="container my-4">
@@ -21,25 +39,17 @@
             </thead>
             <tbody>
                 @foreach ($modules as $module)
-                    <tr
-                        class="
-                    @if ($module->status == 'Active') table-success
-                    @elseif($module->status == 'Inactive')
-                        table-warning
-                    @elseif($module->status == 'Malfunction')
-                        table-danger @endif
-                ">
-                        <td>{{ $module->id }}</td>
-                        <td>{{ $module->name }}</td>
-                        <td>{{ $module->type }}</td>
-                        <td>{{ $module->measured_value }}</td>
-                        <td>{{ $module->status }}</td>
-                        <td>{{ $module->operating_time }}</td>
-                        <td>{{ $module->data_sent_count }}</td>
-                        <td>
-                            <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
-                                History</button>
-                        </td>
+                    <td>{{ $module->id }}</td>
+                    <td>{{ $module->name }}</td>
+                    <td>{{ $module->type }}</td>
+                    <td>{{ $module->measured_value }}</td>
+                    <td>{{ $module->status }}</td>
+                    <td>{{ $module->operating_time }}</td>
+                    <td>{{ $module->data_sent_count }}</td>
+                    <td>
+                        <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
+                            History</button>
+                    </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -79,7 +89,20 @@
             let moduleTable = $('#moduleStatusTable').DataTable({
                 "paging": true,
                 "searching": true,
-                "pageLength": 10
+                "pageLength": 10,
+                "rowCallback": function(row, data, dataIndex) {
+                    var status = data[4];
+                    $(row).removeClass('active malfunction inactive');
+                    var statusCell = $(row).find('td').eq(4);
+
+                    if (status == 'active') {
+                        $(statusCell).addClass('active');
+                    } else if (status == 'malfunction') {
+                        $(statusCell).addClass('malfunction');
+                    } else if (status == 'inactive') {
+                        $(statusCell).addClass('inactive');
+                    }
+                }
             });
 
             const refreshModuleData = () => {
