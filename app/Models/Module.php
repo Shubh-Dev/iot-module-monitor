@@ -10,19 +10,19 @@ class Module extends Model
 {
     use HasFactory;
     protected $table = 'modules';
-    
+
     protected  $fillable = [
-        'name', 
-        'type', 
-        'measured_value', 
-        'operating_time', 
-        'data_sent_count', 
-        'status', 
+        'name',
+        'type',
+        'measured_value',
+        'operating_time',
+        'data_sent_count',
+        'status',
         'last_operated_at'
     ];
 
     // one to many relationship with ModuleHistory
-    public function moduleHistories()
+    public function moduleHistory()
     {
         return $this->hasMany(ModuleHistory::class);
     }

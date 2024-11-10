@@ -1,18 +1,19 @@
+<!-- resources/views/modules/index.blade.php -->
 @extends('layouts.app')
 @section('head')
     <style>
         .active {
-            background-color: green;
+            background-color: #28a745 !important;
             color: white;
         }
 
         .malfunction {
-            background-color: red;
+            background-color: #dc3545 !important;
             color: white;
         }
 
         .inactive {
-            background-color: gray;
+            background-color: #6c757d !important;
             color: white;
         }
     </style>
@@ -39,40 +40,19 @@
             </thead>
             <tbody>
                 @foreach ($modules as $module)
-                    <td>{{ $module->id }}</td>
-                    <td>{{ $module->name }}</td>
-                    <td>{{ $module->type }}</td>
-                    <td>{{ $module->measured_value }}</td>
-                    <td>{{ $module->status }}</td>
-                    <td>{{ $module->operating_time }}</td>
-                    <td>{{ $module->data_sent_count }}</td>
-                    <td>
-                        <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
-                            History</button>
-                    </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <!-- Module History Section -->
-        <h2 class="display-6 mt-5 mb-4 text-center">Module History</h2>
-        <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
-            <thead class="table-secondary">
-                <tr>
-                    <th scope="col">Module ID</th>
-                    <th scope="col">Module Name</th>
-                    <th scope="col">Measured Value</th>
-                    <th scope="col">Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($history as $entry)
                     <tr>
-                        <td>{{ $entry->module_id }}</td>
-                        <td>{{ $entry->module->name }}</td>
-                        <td>{{ $entry->measured_value }}</td>
-                        <td>{{ $entry->created_at }}</td>
+                        <td>{{ $module->id }}</td>
+                        <td>{{ $module->name }}</td>
+                        <td>{{ $module->type }}</td>
+                        <td>{{ $module->measured_value }}</td>
+                        <td class="{{ strtolower($module->status) }}">
+                            {{ ucfirst($module->status) }}</td>
+                        <td>{{ $module->operating_time }}</td>
+                        <td>{{ $module->data_sent_count }}</td>
+                        <td>
+                            <button class="btn btn-primary fetch-history" data-id="{{ $module->id }}">Show
+                                History</button>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -90,19 +70,7 @@
                 "paging": true,
                 "searching": true,
                 "pageLength": 10,
-                "rowCallback": function(row, data, dataIndex) {
-                    var status = data[4];
-                    $(row).removeClass('active malfunction inactive');
-                    var statusCell = $(row).find('td').eq(4);
 
-                    if (status == 'active') {
-                        $(statusCell).addClass('active');
-                    } else if (status == 'malfunction') {
-                        $(statusCell).addClass('malfunction');
-                    } else if (status == 'inactive') {
-                        $(statusCell).addClass('inactive');
-                    }
-                }
             });
 
             const refreshModuleData = () => {
@@ -116,12 +84,13 @@
                         moduleTable.clear();
 
                         data.forEach(function(module) {
+                            const statusClass = module.status.toLowerCase();
                             moduleTable.row.add([
                                 module.id,
                                 module.name,
                                 module.type,
                                 module.measured_value,
-                                module.status,
+                                `<td class="${statusClass}">${module.status}</td>`,
                                 module.operating_time,
                                 module.data_sent_count,
                                 `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
@@ -137,49 +106,8 @@
             }
 
             setInterval(refreshModuleData, 3000);
-
-            $('#moduleHistoryTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "pageLength": 10
-            });
         });
     </script>
-
-    {{-- <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Event listener for history buttons
-        document.querySelectorAll('.fetch-history').forEach(button => {
-            button.addEventListener('click', function () {
-                const moduleId = this.getAttribute('data-id');
-                // Make AJAX request to fetch history
-                fetch(`/modules/${moduleId}/history`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Populate the history modal with data
-                        let historyTable = document.getElementById('history-table');
-                        historyTable.innerHTML = ''; // Clear previous data
-
-                        data.forEach(item => {
-                            let row = `<tr>
-                                <td>${item.measured_value}</td>
-                                <td>${item.status}</td>
-                                <td>${item.operating_time}</td>
-                                <td>${item.data_sent_count}</td>
-                                <td>${item.recorded_at}</td>
-                            </tr>`;
-                            historyTable.innerHTML += row;
-                        });
-
-                        // Show the modal
-                        document.getElementById('history-modal').style.display = 'block';
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-    });
-    </script> --}}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Prepare data for the chart
