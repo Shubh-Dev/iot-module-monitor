@@ -16,6 +16,10 @@
             background-color: #E32636 !important;
             color: white;
         }
+
+        td {
+            transition: background-color 0.5s ease;
+        }
     </style>
 @endsection
 
@@ -46,7 +50,7 @@
                         <td>{{ $module->type }}</td>
                         <td>{{ $module->measured_value }}</td>
                         <td class="{{ strtolower($module->status) }}">
-                            {{ ucfirst($module->status) }}</td>
+                            {{ ($module->status) }}</td>
                         <td>{{ $module->operating_time }}</td>
                         <td>{{ $module->data_sent_count }}</td>
                         <td>
@@ -73,28 +77,38 @@
 
             });
 
+            let previousData = {};
+
             const refreshModuleData = () => {
-                console.log('Starting AJAX request to fetch module data...');
                 $.ajax({
                     url: '/api/modules',
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
-                        console.log('Data received from API:', data);
                         moduleTable.clear();
 
                         data.forEach(function(module) {
                             const statusClass = module.status.toLowerCase();
+                            const rowId = `module-${module.id}`;
+                            // Compare current and previous values
+                            const prevMeasuredValue = previousData[rowId]?.measured_value;
+                            const prevOperatingTime = previousData[rowId]?.operating_time;
+                            const prevDataSentCount = previousData[rowId]?.data_sent_count;
                             moduleTable.row.add([
                                 module.id,
                                 module.name,
                                 module.type,
-                                module.measured_value,
-                                module.status,
-                                module.operating_time,
-                                module.data_sent_count,
+                                `<span class="measured-value" data-prev="${prevMeasuredValue || ''}">${module.measured_value}</span>`,
+                                `<td class="${statusClass}">${module.status}</td>`,
+                                `<span class="operating-time" data-prev="${prevOperatingTime || ''}">${module.operating_time}</span>`,
+                                `<span class="data-sent-count" data-prev="${prevDataSentCount || ''}">${module.data_sent_count}</span>`,
                                 `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
                             ]);
+                            previousData[rowId] = {
+                                measured_value: module.measured_value,
+                                operating_time: module.operating_time,
+                                data_sent_count: module.data_sent_count,
+                            };
                         });
                         moduleTable.draw(false);
                         // Apply status classes after the table is redrawn
@@ -112,6 +126,17 @@
                             }
                         });
 
+                        $('#moduleStatusTable tbody tr').each(function() {
+                            const $row = $(this);
+
+                            // Highlight measured value changes
+                            highlightChange($row.find('.measured-value'));
+                            // Highlight operating time changes
+                            highlightChange($row.find('.operating-time'));
+                            // Highlight data sent count changes
+                            highlightChange($row.find('.data-sent-count'));
+                        });
+
                         console.log('Table updated with new data and status classes applied.');
 
                     },
@@ -123,6 +148,27 @@
 
             setInterval(refreshModuleData, 3000);
         });
+
+        // Helper function to highlight changes
+        const highlightChange = ($cell) => {
+            const newValue = $cell.text();
+            const prevValue = $cell.attr('data-prev');
+
+            // Check if the value has changed
+            if (newValue !== prevValue) {
+                // Temporarily change the background color
+                $cell.css('background-color', '#ffeb3b'); // Yellow color
+
+                // Smoothly transition back to the original background color
+                setTimeout(() => {
+                    $cell.css('transition', 'background-color 1s');
+                    $cell.css('background-color', '');
+                }, 500);
+
+                // Update the previous value attribute
+                $cell.attr('data-prev', newValue);
+            }
+        };
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
