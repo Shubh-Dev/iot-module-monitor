@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Module;
 use App\Models\ModuleHistory;
 use Illuminate\Support\Facades\Log;
+use Faker\Factory as Faker;
 use Illuminate\Http\Request;
 
 
@@ -70,10 +71,19 @@ class ModuleController extends Controller
             'status' => 'required | string | in:active, inactive, malfunction',
         ]);
 
+        $faker = Faker::create();
+
+        // Fill in missing fields with Faker-generated values
+        $moduleData = array_merge($validated, [
+            'measured_value' => $faker->randomFloat(2, 10, 100),
+            'operating_time' => $faker->numberBetween(1, 100),
+            'data_sent_count' => $faker->numberBetween(1, 1000),
+        ]);
+
         try {
 
             // create a module
-            Module::create($validated);
+            Module::create($moduleData);
 
             // redirect with a success message
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
