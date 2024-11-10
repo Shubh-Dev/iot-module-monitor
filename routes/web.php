@@ -23,6 +23,7 @@ Route::delete('/modules/delete/{id}', [ModuleController::class, 'destroy'])->nam
 
 // API route to fetch modules data
 Route::get('/api/modules', [ApiModuleController::class, 'getModuleData']);
+Route::get('/api/modules/{id}/history', [ModuleController::class, 'getHistory']);
 
 
 

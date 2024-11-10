@@ -40,10 +40,26 @@ class ModuleController extends Controller
 
             return view('modules.history', compact('module', 'history'));
         } catch (\Exception $e) {
-            Log::error('Error fetching modules data for API: ' . $e->getMessage());
+            Log::error('Error fetching modules data: ' . $e->getMessage());
             return response()->json(['error' => 'Unable to fetch modules data.'], 500);
         }
     }
+
+
+    public function getHistory($id)
+    {
+        try {
+            $history = ModuleHistory::where('module_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->take(100) // Limit the data to avoid large payloads
+                ->get();
+
+            return response()->json($history);
+        } catch (\Exception $e) {
+            Log::error('Error fetching History data for API: ' . $e->getMessage());
+        }
+    }
+
 
     public function getModulesData()
     {
