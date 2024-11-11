@@ -14,14 +14,16 @@
     @yield('head')
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <title>Module Status</title>
+    <title>Module Home</title>
 </head>
 
 <body>
     <div class="container">
         @yield('content')
     </div>
+    {{-- datatables --}}
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    {{-- bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
