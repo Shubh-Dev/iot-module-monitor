@@ -11,7 +11,11 @@
 
 @section('content')
     <div class="container my-4">
-        <h1 class="display-5 mb-4 text-center">History for Module: {{ $module->name }}</h1>
+        <h1 class="display-5 mb-4 text-center">
+            History for Module: <span class="text-primary">{{ $module->name }}</span>
+        </h1>
+
+
 
         <!-- Module History Table -->
         <table id="moduleHistoryTable" class="table table-hover table-bordered table-striped">
@@ -38,14 +42,19 @@
         </table>
 
         {{-- history chart  --}}
-        <canvas id="moduleChart" width="400" height="200"></canvas>
+        <p class="text-center display-6 my-4">Historical data: Measured Value</p>
+        <div class="row justify-content-center">
+            <div class="text-center">
+                <canvas id="moduleChart" width="400" height="200"></canvas>
+            </div>
+        </div>
 
         <a href="{{ route('modules.index') }}" class="btn btn-secondary mt-5">Back to Modules</a>
     </div>
     <!-- Initialize DataTables -->
     <script>
         $(document).ready(function() {
-          const moduleHistoryTable =   $('#moduleHistoryTable').DataTable({
+            const moduleHistoryTable = $('#moduleHistoryTable').DataTable({
                 "paging": true,
                 "searching": true,
                 "pageLength": 10,
@@ -118,7 +127,7 @@
             };
 
             // Fetch data every 5 seconds
-            setInterval(refreshHistoryData, 3000);
+            setInterval(refreshHistoryData, 2000);
 
             // Initial data fetch
             refreshHistoryData();

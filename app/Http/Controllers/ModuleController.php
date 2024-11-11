@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
 use Illuminate\Http\Request;
+use Flasher\Toastr\Prime\ToastrInterface;
+
 
 
 class ModuleController extends Controller
@@ -88,7 +90,7 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'name' => 'required | string | max:225',
             'type' => 'required | string | max:225',
-            'status' => 'required | string | in:active, inactive, malfunction',
+            'status' => 'required | string',
         ]);
 
         $faker = Faker::create();
@@ -103,7 +105,6 @@ class ModuleController extends Controller
         DB::beginTransaction();
 
         try {
-            // create a module
             $module = Module::create($moduleData);
 
             ModuleHistory::create([
@@ -117,6 +118,7 @@ class ModuleController extends Controller
 
             DB::commit();  // Commit the transaction
             // redirect with a success message
+            // toastr()->success('Your account has been re-verified.');
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
             DB::rollback();
@@ -124,6 +126,7 @@ class ModuleController extends Controller
             return redirect()->route('modules.index')->with('error', 'Failed to create module');
         }
     }
+
 
     public function destroy($id)
     {
@@ -138,21 +141,23 @@ class ModuleController extends Controller
         }
     }
 
-    // delete from both the tables - useful in development
-    public function clearDatabase()
-    {
-        try {
-            // Begin a transaction to ensure both tables are cleared atomically
-            DB::beginTransaction();
-            DB::table('module_history')->truncate();
-            DB::table('modules')->truncate();
-            DB::commit();
 
-            return response()->json(['success' => 'Database cleared successfully']);
+    public function updateStatus(Request $request, $id)
+    {
+        $module = Module::find($id);
+
+        try {
+            if ($module) {
+                $module->status = $request->input('status');
+                $module->save();
+
+
+                toastr()->success('Module status updated');
+                return response()->json(['success' => true]);
+            }
         } catch (\Exception $e) {
-            DB::rollback();
-            Log::error("Error clearing database: " . $e->getMessage());
-            return response()->json(['error' => 'Failed to clear the database'], 500);
+            toastr()->error('Something went wrong');
+            return response()->json(['success' => false], 400);
         }
     }
 }

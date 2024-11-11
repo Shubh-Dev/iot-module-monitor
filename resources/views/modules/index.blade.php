@@ -64,16 +64,18 @@
                         <td>
                             <a href="{{ route('modules.history', ['id' => $module->id]) }}"
                                 class="btn btn-info btn-sm">Details</a>
-                            <button class="btn btn-danger btn-sm btn-delete">Delete</button>
-                            <button class="btn btn-success btn-sm dynamic-btn">Start</button>
+                            <button class="ml-2 btn btn-danger btn-sm btn-delete"
+                                data-id="{{ $module->id }}">Delete</button>
+                            <button
+                                class="ml-2 btn btn-sm dynamic-btn {{ $module->status === 'active' ? 'btn-danger' : 'btn-success' }}"
+                                data-id="{{ $module->id }}">
+                                {{ $module->status === 'active' ? 'Stop' : 'Start' }}
+                            </button>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-
-        {{-- <canvas id="moduleChart" width="400" height="200"></canvas> --}}
-
     </div>
 
     <!-- DataTables Initialization -->
@@ -112,7 +114,12 @@
                                 `<td class="${statusClass}">${module.status}</td>`,
                                 `<span class="operating-time" data-prev="${prevOperatingTime || ''}">${module.operating_time}</span>`,
                                 `<span class="data-sent-count" data-prev="${prevDataSentCount || ''}">${module.data_sent_count}</span>`,
-                                `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
+                                `<a href="/modules/history/${module.id}" class="btn btn-info btn-sm">Details</a>
+                                <button class="ml-2 btn btn-danger btn-sm btn-delete" data-id="${module.id}">Delete</button>
+                               <button
+                                class="ml-2 btn btn-sm dynamic-btn ${module.status === 'active' ? 'btn-danger' : 'btn-success'}" data-id="${module.id}">
+                               ${module.status === 'active' ? 'Stop' : 'Start'}
+                               </button>`
                             ]);
                             previousData[rowId] = {
                                 measured_value: module.measured_value,
@@ -121,23 +128,20 @@
                             };
                         });
                         moduleTable.draw(false);
-                        // Apply status classes after the table is redrawn
-                        $('#moduleStatusTable tbody tr').each(function() {
-                            const statusText = $(this).find('td:nth-child(5)').text()
-                                .toLowerCase();
-                            $(this).find('td:nth-child(5)').removeClass(
-                                'active inactive malfunction');
-                            if (statusText === 'active') {
-                                $(this).find('td:nth-child(5)').addClass('active');
-                            } else if (statusText === 'inactive') {
-                                $(this).find('td:nth-child(5)').addClass('inactive');
-                            } else if (statusText === 'malfunction') {
-                                $(this).find('td:nth-child(5)').addClass('malfunction');
-                            }
-                        });
-
                         $('#moduleStatusTable tbody tr').each(function() {
                             const $row = $(this);
+                            const statusText = $row.find('td:nth-child(5)').text()
+                                .toLowerCase();
+
+                            $row.find('td:nth-child(5)').removeClass(
+                                'active inactive malfunction');
+                            if (statusText === 'active') {
+                                $row.find('td:nth-child(5)').addClass('active');
+                            } else if (statusText === 'inactive') {
+                                $row.find('td:nth-child(5)').addClass('inactive');
+                            } else if (statusText === 'malfunction') {
+                                $row.find('td:nth-child(5)').addClass('malfunction');
+                            }
 
                             // Highlight changed values
                             highlightChange($row.find('.measured-value'));
@@ -154,7 +158,7 @@
                 });
             }
 
-            // setInterval(refreshModuleData, 3000);
+            setInterval(refreshModuleData, 3000);
         });
 
         // Helper function to highlight changes
@@ -177,58 +181,87 @@
             }
         };
     </script>
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Prepare data for the chart
-            const labels = @json($history->pluck('created_at')->map(fn($date) => $date->format('Y-m-d H:i:s')));
-            const dataValues = @json($history->pluck('measured_value'));
-
-            const ctx = document.getElementById('moduleChart').getContext('2d');
-            const moduleChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Measured Value Over Time',
-                        data: dataValues,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    }
-                }
-            });
-        });
-    </script> --}}
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         // delete request handler
         $(document).on('click', '.btn-delete', function(e) {
             e.preventDefault();
             const moduleId = $(this).data('id');
+            console.log($('meta[name="csrf-token"]').attr('content'));
 
             if (confirm('Are you sure you want to delete this module?')) {
                 $.ajax({
                     url: `/modules/delete/${moduleId}`,
                     type: 'DELETE',
                     success: function(response) {
-                        alert(response.success);
-                        $('#moduleStatusTable').DataTable().ajax.reload(); // Reload the table
+                        console.log('Success response:', response); // Log the response for inspection
+                        if (response.success) {
+                            alert(response.success);
+
+                            // Remove the row from DataTable
+                            const rowToDelete = $(
+                                `#moduleStatusTable tbody tr button.btn-delete[data-id="${moduleId}"]`
+                            ).closest('tr');
+                            $('#moduleStatusTable').DataTable().row(rowToDelete).remove().draw(
+                                false); // Remove and redraw
+
+                        } else {
+                            alert('Failed to delete module');
+                        }
                     },
-                    error: function(error) {
-                        alert('Error deleting module');
+                    error: function(xhr, status, error) {
+                        console.log('Error response:', xhr
+                            .responseText); // Log the error response for inspection
+                        alert('Error deleting module: ' + error);
+                    }
+                });
+
+            }
+        });
+
+        $(document).on('click', '.dynamic-btn', function() {
+            const $button = $(this);
+            const moduleId = $button.closest('tr').find('.dynamic-btn').data('id');
+            const currentStatus = $button.text().trim(); // 'Start' or 'Stop'
+
+            // Determine new status
+            const newStatus = currentStatus === 'Start' ? 'active' : 'inactive';
+
+            // Show confirmation dialog
+            if (confirm(`Are you sure you want to ${currentStatus === 'Start' ? 'start' : 'stop'} this module?`)) {
+                $.ajax({
+                    url: `/modules/update-status/${moduleId}`,
+                    type: 'POST',
+                    data: {
+                        status: newStatus,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the button text and class based on the new status
+                            $button.text(newStatus === 'active' ? 'Stop' : 'Start');
+                            $button.removeClass('btn-success btn-danger')
+                                .addClass(newStatus === 'active' ? 'btn-danger' : 'btn-success');
+
+                            // Update the status cell color and text
+                            $button.closest('tr').find('td:nth-child(5)').removeClass(
+                                    'active inactive malfunction')
+                                .addClass(newStatus)
+                                .text(newStatus);
+
+                            location.reload();
+
+                        } else {
+                            alert('Failed to update module status');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating status:', error);
+                        alert('Error updating module status');
                     }
                 });
             }
