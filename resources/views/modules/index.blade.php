@@ -64,8 +64,13 @@
                         <td>
                             <a href="{{ route('modules.history', ['id' => $module->id]) }}"
                                 class="btn btn-info btn-sm">Details</a>
-                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $module->id }}">Delete</button>
-                            <button class="btn btn-success btn-sm dynamic-btn">Start</button>
+                            <button class="ml-2 btn btn-danger btn-sm btn-delete"
+                                data-id="{{ $module->id }}">Delete</button>
+                            <button
+                                class="ml-2 btn btn-sm dynamic-btn {{ $module->status === 'active' ? 'btn-danger' : 'btn-success' }}"
+                                data-id="{{ $module->id }}">
+                                {{ $module->status === 'active' ? 'Stop' : 'Start' }}
+                            </button>
                         </td>
                     </tr>
                 @endforeach
@@ -109,7 +114,12 @@
                                 `<td class="${statusClass}">${module.status}</td>`,
                                 `<span class="operating-time" data-prev="${prevOperatingTime || ''}">${module.operating_time}</span>`,
                                 `<span class="data-sent-count" data-prev="${prevDataSentCount || ''}">${module.data_sent_count}</span>`,
-                                `<button class="btn btn-primary fetch-history" data-id="${module.id}">Show History</button>`
+                                `<a href="/modules/history/${module.id}" class="btn btn-info btn-sm">Details</a>
+                                <button class="ml-2 btn btn-danger btn-sm btn-delete" data-id="${module.id}">Delete</button>
+                               <button
+                                class="ml-2 btn btn-sm dynamic-btn ${module.status === 'active' ? 'btn-danger' : 'btn-success'}" data-id="${module.id}">
+                               ${module.status === 'active' ? 'Stop' : 'Start'}
+                               </button>`
                             ]);
                             previousData[rowId] = {
                                 measured_value: module.measured_value,
@@ -119,21 +129,19 @@
                         });
                         moduleTable.draw(false);
                         $('#moduleStatusTable tbody tr').each(function() {
-                            const statusText = $(this).find('td:nth-child(5)').text()
+                            const $row = $(this);
+                            const statusText = $row.find('td:nth-child(5)').text()
                                 .toLowerCase();
-                            $(this).find('td:nth-child(5)').removeClass(
+
+                            $row.find('td:nth-child(5)').removeClass(
                                 'active inactive malfunction');
                             if (statusText === 'active') {
-                                $(this).find('td:nth-child(5)').addClass('active');
+                                $row.find('td:nth-child(5)').addClass('active');
                             } else if (statusText === 'inactive') {
-                                $(this).find('td:nth-child(5)').addClass('inactive');
+                                $row.find('td:nth-child(5)').addClass('inactive');
                             } else if (statusText === 'malfunction') {
-                                $(this).find('td:nth-child(5)').addClass('malfunction');
+                                $row.find('td:nth-child(5)').addClass('malfunction');
                             }
-                        });
-
-                        $('#moduleStatusTable tbody tr').each(function() {
-                            const $row = $(this);
 
                             // Highlight changed values
                             highlightChange($row.find('.measured-value'));
@@ -212,6 +220,50 @@
                     }
                 });
 
+            }
+        });
+
+        $(document).on('click', '.dynamic-btn', function() {
+            const $button = $(this);
+            const moduleId = $button.closest('tr').find('.dynamic-btn').data('id');
+            const currentStatus = $button.text().trim(); // 'Start' or 'Stop'
+
+            // Determine new status
+            const newStatus = currentStatus === 'Start' ? 'active' : 'inactive';
+
+            // Show confirmation dialog
+            if (confirm(`Are you sure you want to ${currentStatus === 'Start' ? 'start' : 'stop'} this module?`)) {
+                $.ajax({
+                    url: `/modules/update-status/${moduleId}`,
+                    type: 'POST',
+                    data: {
+                        status: newStatus,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the button text and class based on the new status
+                            $button.text(newStatus === 'active' ? 'Stop' : 'Start');
+                            $button.removeClass('btn-success btn-danger')
+                                .addClass(newStatus === 'active' ? 'btn-danger' : 'btn-success');
+
+                            // Update the status cell color and text
+                            $button.closest('tr').find('td:nth-child(5)').removeClass(
+                                    'active inactive malfunction')
+                                .addClass(newStatus)
+                                .text(newStatus);
+
+                            location.reload();
+
+                        } else {
+                            alert('Failed to update module status');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error updating status:', error);
+                        alert('Error updating module status');
+                    }
+                });
             }
         });
     </script>

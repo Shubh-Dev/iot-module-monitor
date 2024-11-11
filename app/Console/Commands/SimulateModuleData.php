@@ -56,17 +56,21 @@ class SimulateModuleData extends Command
 
             // Update each module's data and store it in the history
             foreach ($modules as $module) {
-                // Backup current data in the module_history table (storing history)
-                ModuleHistory::create([
-                    'module_id' => $module->id,
-                    'measured_value' => $module->measured_value,
-                    'status' => $module->status,
-                    'operating_time' => $module->operating_time,
-                    'data_sent_count' => $module->data_sent_count,
-                    'recorded_at' => Carbon::now(),
-                ]);
-
-                // Generate new random data for each module (excluding name and status)
+                if (Module::find($module->id)) {
+                    // Backup current data in the module_history table (storing history)
+                    ModuleHistory::create([
+                        'module_id' => $module->id,
+                        'measured_value' => $module->measured_value,
+                        'status' => $module->status,
+                        'operating_time' => $module->operating_time,
+                        'data_sent_count' => $module->data_sent_count,
+                        'recorded_at' => Carbon::now(),
+                    ]);
+                } else {
+                    // Skip the module if it no longer exists
+                    $this->info("Module {$module->id} has been deleted, skipping simulation.");
+                    continue;
+                }
                 $module->measured_value = $faker->randomFloat(2, 10, 100);
                 $module->operating_time = $faker->numberBetween(1, 100);
                 $module->data_sent_count = $faker->numberBetween(1, 1000);

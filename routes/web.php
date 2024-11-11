@@ -20,6 +20,10 @@ Route::post('/modules', [ModuleController::class, 'create'])->name('modules.crea
 // Delete a module
 Route::delete('/modules/delete/{id}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
+// Status update
+Route::post('/modules/update-status/{id}', [ModuleController::class, 'updateStatus']);
+
+
 
 // API route to fetch modules data
 Route::get('/api/modules', [ApiModuleController::class, 'getModuleData']);
