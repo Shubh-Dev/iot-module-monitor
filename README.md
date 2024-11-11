@@ -77,37 +77,20 @@ php artisan db:seed
 
 ```
 
-Step 6: Install Frontend Dependencies - Install Node packages for frontend assets
+Step 6: Start the Simulator - Run the simulator to generate and update module data
+Important: Do not exit the terminal after running the command. The simulator will continue to run in the terminal and will periodically generate and update data for the modules. If you exit the terminal, the simulator will stop, and module data updates will cease.
 
 ```javascript
-npm install
+php artisan simulate:module-data
+
 ```
 
-Step 7: Start the Development Server
+Step 7: Start the Development Server 
+After starting the simulator in the previous step, open **another terminal** and run the following command to start the Laravel development server:
 
 ```javascript
 php artisan serve
 
-```
-
-## Run tests
-
-For tracking linters errors locally, you need to follow these steps:
-
--   For tracking linter errors in HTML file run:
-
-```javascript
-npm install --save-dev hint@6.x
-```
-
-```javascript
-npx hint .
-```
-
--   For tracking linter errors in CSS file run:
-
-```javascript
-npm install --save-dev stylelint@13.x stylelint-scss@3.x stylelint-config-standard@21.x stylelint-csstree-validator@1.x
 ```
 
 ## Authors
@@ -129,13 +112,8 @@ Give a ⭐️ if you liked this project!
 
 ## Acknowledgments
 
--   Example
+-   Not available right now
 
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-
-## php artisan simulate:module-data
-
-

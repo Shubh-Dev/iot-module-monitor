@@ -51,7 +51,6 @@ class SimulateModuleData extends Command
 
         // Run the simulation loop
         while (true) {
-            // Fetch all modules once per iteration
             $modules = Module::all();
 
             // Update each module's data and store it in the history

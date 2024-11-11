@@ -10,6 +10,8 @@ class ModuleHistory extends Model
     use HasFactory;
     protected $table = 'module_history';
 
+
+    // allow fillable 
     protected $fillable = [
         'module_id',
         'measured_value',

@@ -117,8 +117,6 @@ class ModuleController extends Controller
             ]);
 
             DB::commit();  // Commit the transaction
-            // redirect with a success message
-            // toastr()->success('Your account has been re-verified.');
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
             DB::rollback();
@@ -130,6 +128,7 @@ class ModuleController extends Controller
 
     public function destroy($id)
     {
+        
         $module = Module::findOrFail($id);
 
         try {
@@ -150,8 +149,6 @@ class ModuleController extends Controller
             if ($module) {
                 $module->status = $request->input('status');
                 $module->save();
-
-
                 toastr()->success('Module status updated');
                 return response()->json(['success' => true]);
             }

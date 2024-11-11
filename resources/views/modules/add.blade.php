@@ -2,6 +2,10 @@
 @extends('layouts.app')
 
 @section('content')
+    <!-- Go Back Button -->
+    <div class="form-group text-end mt-3">
+        <a href="{{ url('/') }}" class="btn btn-secondary btn-sm">Go Back</a>
+    </div>
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
         <div class="card shadow" style="width: 60%; padding: 20px;">
             <h2 class="text-center mb-4">Create New Module</h2>
@@ -30,6 +34,8 @@
                     <button type="submit" class="btn btn-primary btn-lg">Save Module</button>
                 </div>
             </form>
+
         </div>
+
     </div>
 @endsection

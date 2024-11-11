@@ -1,6 +1,7 @@
 <!-- resources/views/modules/index.blade.php -->
 @extends('layouts.app')
 @section('head')
+    {{-- custom styles to style status cell --}}
     <style>
         .active {
             background-color: #17B169 !important;
