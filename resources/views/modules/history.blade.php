@@ -45,7 +45,7 @@
     <!-- Initialize DataTables -->
     <script>
         $(document).ready(function() {
-          const moduleHistoryTable =   $('#moduleHistoryTable').DataTable({
+            const moduleHistoryTable = $('#moduleHistoryTable').DataTable({
                 "paging": true,
                 "searching": true,
                 "pageLength": 10,
@@ -118,7 +118,7 @@
             };
 
             // Fetch data every 5 seconds
-            setInterval(refreshHistoryData, 3000);
+            setInterval(refreshHistoryData, 2000);
 
             // Initial data fetch
             refreshHistoryData();

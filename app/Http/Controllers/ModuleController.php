@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Faker\Factory as Faker;
 use Illuminate\Http\Request;
+use Flasher\Toastr\Prime\ToastrInterface;
+
 
 
 class ModuleController extends Controller
@@ -88,7 +90,7 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'name' => 'required | string | max:225',
             'type' => 'required | string | max:225',
-            'status' => 'required | string | in:active, inactive, malfunction',
+            'status' => 'required | string',
         ]);
 
         $faker = Faker::create();
@@ -117,6 +119,7 @@ class ModuleController extends Controller
 
             DB::commit();  // Commit the transaction
             // redirect with a success message
+            // toastr()->success('Your account has been re-verified.');
             return redirect()->route('modules.index')->with('success', 'Module created successfully');
         } catch (\Exception $e) {
             DB::rollback();
@@ -124,6 +127,27 @@ class ModuleController extends Controller
             return redirect()->route('modules.index')->with('error', 'Failed to create module');
         }
     }
+
+    // public function destroy($id)
+    // {
+    //     $module = Module::findOrFail($id);
+
+    //     try {
+    //         // Delete related records from module_history
+    //         ModuleHistory::where('module_id', $id)->delete();
+
+    //         //  delete the module
+    //         $module->delete();
+
+    //         Log::info("Module with id: " . $id . " deleted successfully");
+    //         return response()->json(['success' => 'Module deleted successfully'], 200);
+    //     } catch (\Exception $e) {
+    //         Log::error("Cannot Delete Module: " . $e->getMessage());
+
+    //         toastr()->error('Error!');
+    //         return response()->json(['error' => 'Failed to delete module'], 500);
+    //     }
+    // }
 
     public function destroy($id)
     {

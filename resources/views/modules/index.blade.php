@@ -64,16 +64,13 @@
                         <td>
                             <a href="{{ route('modules.history', ['id' => $module->id]) }}"
                                 class="btn btn-info btn-sm">Details</a>
-                            <button class="btn btn-danger btn-sm btn-delete">Delete</button>
+                            <button class="btn btn-danger btn-sm btn-delete" data-id="{{ $module->id }}">Delete</button>
                             <button class="btn btn-success btn-sm dynamic-btn">Start</button>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
-
-        {{-- <canvas id="moduleChart" width="400" height="200"></canvas> --}}
-
     </div>
 
     <!-- DataTables Initialization -->
@@ -121,7 +118,6 @@
                             };
                         });
                         moduleTable.draw(false);
-                        // Apply status classes after the table is redrawn
                         $('#moduleStatusTable tbody tr').each(function() {
                             const statusText = $(this).find('td:nth-child(5)').text()
                                 .toLowerCase();
@@ -154,7 +150,7 @@
                 });
             }
 
-            // setInterval(refreshModuleData, 3000);
+            setInterval(refreshModuleData, 3000);
         });
 
         // Helper function to highlight changes
@@ -177,60 +173,45 @@
             }
         };
     </script>
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Prepare data for the chart
-            const labels = @json($history->pluck('created_at')->map(fn($date) => $date->format('Y-m-d H:i:s')));
-            const dataValues = @json($history->pluck('measured_value'));
-
-            const ctx = document.getElementById('moduleChart').getContext('2d');
-            const moduleChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Measured Value Over Time',
-                        data: dataValues,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        }
-                    }
-                }
-            });
-        });
-    </script> --}}
     <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
         // delete request handler
         $(document).on('click', '.btn-delete', function(e) {
             e.preventDefault();
             const moduleId = $(this).data('id');
+            console.log($('meta[name="csrf-token"]').attr('content'));
 
             if (confirm('Are you sure you want to delete this module?')) {
                 $.ajax({
                     url: `/modules/delete/${moduleId}`,
                     type: 'DELETE',
                     success: function(response) {
-                        alert(response.success);
-                        $('#moduleStatusTable').DataTable().ajax.reload(); // Reload the table
+                        console.log('Success response:', response); // Log the response for inspection
+                        if (response.success) {
+                            alert(response.success);
+
+                            // Remove the row from DataTable
+                            const rowToDelete = $(
+                                `#moduleStatusTable tbody tr button.btn-delete[data-id="${moduleId}"]`
+                            ).closest('tr');
+                            $('#moduleStatusTable').DataTable().row(rowToDelete).remove().draw(
+                                false); // Remove and redraw
+
+                        } else {
+                            alert('Failed to delete module');
+                        }
                     },
-                    error: function(error) {
-                        alert('Error deleting module');
+                    error: function(xhr, status, error) {
+                        console.log('Error response:', xhr
+                            .responseText); // Log the error response for inspection
+                        alert('Error deleting module: ' + error);
                     }
                 });
+
             }
         });
     </script>
