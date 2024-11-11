@@ -78,13 +78,15 @@ php artisan db:seed
 ```
 
 Step 6: Start the Simulator - Run the simulator to generate and update module data
+Important: Do not exit the terminal after running the command. The simulator will continue to run in the terminal and will periodically generate and update data for the modules. If you exit the terminal, the simulator will stop, and module data updates will cease.
 
 ```javascript
 php artisan simulate:module-data
 
 ```
 
-Step 7: Start the Development Server
+Step 7: Start the Development Server 
+After starting the simulator in the previous step, open **another terminal** and run the following command to start the Laravel development server:
 
 ```javascript
 php artisan serve
