@@ -138,3 +138,5 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 ## mysql -u root -p
 
 ## php artisan simulate:module-data
+
+
