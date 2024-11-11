@@ -115,7 +115,7 @@
                                 `<td class="${statusClass}">${module.status}</td>`,
                                 `<span class="operating-time" data-prev="${prevOperatingTime || ''}">${module.operating_time}</span>`,
                                 `<span class="data-sent-count" data-prev="${prevDataSentCount || ''}">${module.data_sent_count}</span>`,
-                                `<a href="/modules/history/${module.id}" class="btn btn-info btn-sm">Details</a>
+                                `<a href="/modules/${module.id}/history/" class="btn btn-info btn-sm">Details</a>
                                 <button class="ml-2 btn btn-danger btn-sm btn-delete" data-id="${module.id}">Delete</button>
                                <button
                                 class="ml-2 btn btn-sm dynamic-btn ${module.status === 'active' ? 'btn-danger' : 'btn-success'}" data-id="${module.id}">

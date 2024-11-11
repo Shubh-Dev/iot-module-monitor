@@ -117,7 +117,7 @@ class ModuleController extends Controller
             ]);
 
             DB::commit();  // Commit the transaction
-            return redirect()->route('modules.index')->with('success', 'Module created successfully');
+            return redirect()->route('modules.index')->with('success', 'Module created successfully')->with('refresh', true);;
         } catch (\Exception $e) {
             DB::rollback();
             Log::error("Error creating module: " . $e->getMessage());
@@ -128,7 +128,7 @@ class ModuleController extends Controller
 
     public function destroy($id)
     {
-        
+
         $module = Module::findOrFail($id);
 
         try {
