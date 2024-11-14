@@ -17,9 +17,10 @@ class ModuleController extends Controller
     public function index()
     {
         try {
+            // fetch all modules
             $modules = Module::all();
             $history = ModuleHistory::orderBy('created_at', 'desc')->get();
-
+            // Pass the modules and history data to the 'modules.index' view
             return view('modules.index', compact('modules', 'history'));
         } catch (\Exception $e) {
             Log::error('Error fetching modules: ' . $e->getMessage());
@@ -39,7 +40,6 @@ class ModuleController extends Controller
                 // Return a custom "no data" view if no history records are found
                 return view('modules.no-data', compact('module'));
             }
-
             return view('modules.history', compact('module', 'history'));
         } catch (\Exception $e) {
             Log::error('Error fetching modules data: ' . $e->getMessage());
@@ -51,11 +51,12 @@ class ModuleController extends Controller
     public function getHistory($id)
     {
         try {
+            // Fetch the history for a specific module by its ID
             $history = ModuleHistory::where('module_id', $id)
                 ->orderBy('created_at', 'desc')
                 ->take(100) // Limit the data to avoid large payloads
                 ->get();
-
+            // Return the history data as a JSON response
             return response()->json($history);
         } catch (\Exception $e) {
             Log::error('Error fetching History data for API: ' . $e->getMessage());
@@ -79,8 +80,10 @@ class ModuleController extends Controller
         }
     }
 
+    // create form display
     public function add()
     {
+        
         return view('modules.add');
     }
 
@@ -129,11 +132,13 @@ class ModuleController extends Controller
     public function destroy($id)
     {
 
+        // Find the module by its ID; throws an exception if not found
         $module = Module::findOrFail($id);
-
         try {
+            // Attempt deletion
             $module->delete();
             Log::error("Module with id: " . $id . "Deleted");
+            // Return a success message as a JSON response
             return response()->json(['success' => 'Module deleted successfully']);
         } catch (\Exception $e) {
             Log::error("Cannot Delete Module: " . $e->getMessage());
@@ -143,10 +148,12 @@ class ModuleController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        // Find the module by its ID, returning null if not found
         $module = Module::find($id);
 
         try {
             if ($module) {
+                 // Update the module status based on the request input
                 $module->status = $request->input('status');
                 $module->save();
                 toastr()->success('Module status updated');

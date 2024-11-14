@@ -11,6 +11,7 @@ class Module extends Model
     use HasFactory;
     protected $table = 'modules';
 
+    // allow insertion 
     protected  $fillable = [
         'name',
         'type',
