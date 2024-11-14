@@ -17,6 +17,7 @@ class ModuleController extends Controller
     public function index()
     {
         try {
+            // fetch all modules
             $modules = Module::all();
             $history = ModuleHistory::orderBy('created_at', 'desc')->get();
 
@@ -79,8 +80,10 @@ class ModuleController extends Controller
         }
     }
 
+    // create form display
     public function add()
     {
+        
         return view('modules.add');
     }
 

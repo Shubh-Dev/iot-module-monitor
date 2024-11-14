@@ -11,7 +11,7 @@ class ModuleHistory extends Model
     protected $table = 'module_history';
 
 
-    // allow fillable 
+    // allow insertion
     protected $fillable = [
         'module_id',
         'measured_value',
